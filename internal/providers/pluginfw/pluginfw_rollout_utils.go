@@ -17,6 +17,7 @@ import (
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/catalog"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/cluster"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/dashboards"
+	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/jobs"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/library"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/notificationdestinations"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/qualitymonitor"
@@ -32,6 +33,7 @@ import (
 // List of resources that have been migrated from SDK V2 to plugin framework
 // Keep this list sorted.
 var migratedResources = []func() resource.Resource{
+	jobs.ResourceJob,
 	library.ResourceLibrary,
 	qualitymonitor.ResourceQualityMonitor,
 	sharing.ResourceShare,
