@@ -43,15 +43,14 @@ func ResourceCluster() resource.Resource {
 
 type ClusterSpecExtended struct {
 	compute_tf.ClusterSpec_SdkV2
-	ID                     types.String `tfsdk:"id"`
-	ClusterId              types.String `tfsdk:"cluster_id"`
-	State                  types.String `tfsdk:"state"`
-	Url                    types.String `tfsdk:"url"`
-	IsPinned               types.Bool   `tfsdk:"is_pinned"`
-	NoWait                 types.Bool   `tfsdk:"no_wait"`
-	IdempotencyToken       types.String `tfsdk:"idempotency_token"`
-	AutoterminationMinutes types.Int64  `tfsdk:"autotermination_minutes"`
-	Library                types.List   `tfsdk:"library"`
+	ID               types.String `tfsdk:"id"`
+	ClusterId        types.String `tfsdk:"cluster_id"`
+	State            types.String `tfsdk:"state"`
+	Url              types.String `tfsdk:"url"`
+	IsPinned         types.Bool   `tfsdk:"is_pinned"`
+	NoWait           types.Bool   `tfsdk:"no_wait"`
+	IdempotencyToken types.String `tfsdk:"idempotency_token"`
+	Library          types.List   `tfsdk:"library"`
 	tfschema.Namespace_SdkV2
 }
 
@@ -111,11 +110,6 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 	attrs["autotermination_minutes"] = schema.Int64Attribute{
 		Optional: true,
 		Computed: true,
-	}
-
-	attrs["default_tags"] = schema.MapAttribute{
-		Computed:    true,
-		ElementType: types.StringType,
 	}
 
 	resp.Schema = schema.Schema{

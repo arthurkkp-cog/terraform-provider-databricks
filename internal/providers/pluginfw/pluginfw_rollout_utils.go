@@ -32,7 +32,9 @@ import (
 // List of resources that have been migrated from SDK V2 to plugin framework
 // Keep this list sorted.
 var migratedResources = []func() resource.Resource{
-	cluster.ResourceCluster,
+	// TODO: Add cluster.ResourceCluster once exporter is updated to handle Plugin Framework resources
+	// The cluster resource implementation is ready but the exporter needs to be updated to use
+	// the Plugin Framework read path for migrated resources.
 	library.ResourceLibrary,
 	qualitymonitor.ResourceQualityMonitor,
 	sharing.ResourceShare,
