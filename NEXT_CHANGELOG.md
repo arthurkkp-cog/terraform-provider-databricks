@@ -13,5 +13,3 @@
 ### Exporter
 
 ### Internal Changes
-
-* Migrated `databricks_job` resource from SDKv2 to Plugin Framework ([#3](https://github.com/arthurkkp-cog/terraform-provider-databricks/pull/3))
