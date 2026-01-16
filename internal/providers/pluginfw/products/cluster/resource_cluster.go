@@ -45,7 +45,6 @@ type ClusterSpecExtended struct {
 	compute_tf.ClusterSpec_SdkV2
 	ID                     types.String `tfsdk:"id"`
 	ClusterId              types.String `tfsdk:"cluster_id"`
-	DefaultTags            types.Map    `tfsdk:"default_tags"`
 	State                  types.String `tfsdk:"state"`
 	Url                    types.String `tfsdk:"url"`
 	IsPinned               types.Bool   `tfsdk:"is_pinned"`
@@ -53,7 +52,6 @@ type ClusterSpecExtended struct {
 	IdempotencyToken       types.String `tfsdk:"idempotency_token"`
 	AutoterminationMinutes types.Int64  `tfsdk:"autotermination_minutes"`
 	Library                types.List   `tfsdk:"library"`
-	ClusterMountInfo       types.List   `tfsdk:"cluster_mount_info"`
 	tfschema.Namespace_SdkV2
 }
 
@@ -63,8 +61,6 @@ func (c ClusterSpecExtended) GetComplexFieldTypes(ctx context.Context) map[strin
 	attrs := c.ClusterSpec_SdkV2.GetComplexFieldTypes(ctx)
 	attrs["provider_config"] = reflect.TypeOf(tfschema.ProviderConfig{})
 	attrs["library"] = reflect.TypeOf(compute_tf.Library_SdkV2{})
-	attrs["cluster_mount_info"] = reflect.TypeOf(clusters.MountInfo{})
-	attrs["default_tags"] = reflect.TypeOf(types.String{})
 	return attrs
 }
 
@@ -80,52 +76,17 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 	attrs, blocks := tfschema.ResourceStructToSchemaMap(ctx, ClusterSpecExtended{}, func(c tfschema.CustomizableSchema) tfschema.CustomizableSchema {
 		c.ConfigureAsSdkV2Compatible()
 
-		c.SetRequired("spark_version")
-		c.SetComputed("enable_elastic_disk")
-		c.SetComputed("enable_local_disk_encryption")
-		c.SetComputed("node_type_id")
-		c.SetComputed("driver_node_type_id")
-		c.SetComputed("driver_instance_pool_id")
-
 		c.SetOptional("id")
 		c.SetComputed("id")
 		c.SetComputed("cluster_id")
-		c.SetComputed("default_tags")
 		c.SetComputed("state")
 		c.SetComputed("url")
 
-		c.SetOptional("is_pinned")
-		c.SetOptional("no_wait")
-		c.SetOptional("idempotency_token")
-		c.SetOptional("autotermination_minutes")
-		c.SetOptional("library")
-		c.SetOptional("cluster_mount_info")
-
 		c.AddValidator(listvalidator.SizeAtMost(1), "provider_config")
-		c.AddValidator(listvalidator.SizeAtMost(10), "ssh_public_keys")
-		c.AddValidator(listvalidator.SizeAtMost(10), "init_scripts")
 
 		c.SetDeprecated(clusters.DbfsDeprecationWarning, "init_scripts", "dbfs")
-		c.SetRequired("init_scripts", "dbfs", "destination")
-		c.SetRequired("init_scripts", "s3", "destination")
-		c.SetRequired("init_scripts", "volumes", "destination")
-		c.SetRequired("init_scripts", "workspace", "destination")
-
-		c.SetRequired("workload_type", "clients")
-
 		c.SetDeprecated(clusters.EggDeprecationWarning, "library", "egg")
-
-		c.SetRequired("docker_image", "url")
-		c.SetRequired("docker_image", "basic_auth", "password")
 		c.SetSensitive("docker_image", "basic_auth", "password")
-		c.SetRequired("docker_image", "basic_auth", "username")
-
-		c.SetOptional("autoscale", "max_workers")
-		c.SetOptional("autoscale", "min_workers")
-
-		c.SetRequired("cluster_log_conf", "dbfs", "destination")
-		c.SetRequired("cluster_log_conf", "s3", "destination")
-		c.SetRequired("cluster_log_conf", "volumes", "destination")
 
 		return c
 	})
@@ -150,6 +111,11 @@ func (r *ClusterResource) Schema(ctx context.Context, req resource.SchemaRequest
 	attrs["autotermination_minutes"] = schema.Int64Attribute{
 		Optional: true,
 		Computed: true,
+	}
+
+	attrs["default_tags"] = schema.MapAttribute{
+		Computed:    true,
+		ElementType: types.StringType,
 	}
 
 	resp.Schema = schema.Schema{
@@ -495,7 +461,6 @@ func (r *ClusterResource) readClusterInfo(ctx context.Context, w *databricks.Wor
 	newClusterTfSDK.IdempotencyToken = clusterTfSDK.IdempotencyToken
 	newClusterTfSDK.ProviderConfig = clusterTfSDK.ProviderConfig
 	newClusterTfSDK.Library = clusterTfSDK.Library
-	newClusterTfSDK.ClusterMountInfo = clusterTfSDK.ClusterMountInfo
 
 	return &newClusterTfSDK, diags
 }
