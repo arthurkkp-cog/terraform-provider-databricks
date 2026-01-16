@@ -66,13 +66,6 @@ func (r *JobResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 		c.SetOptional("url")
 		c.SetComputed("url")
 
-		c.SetDefault("UNPAUSED", "schedule", "pause_status")
-		c.SetDefault("UNPAUSED", "trigger", "pause_status")
-		c.SetDefault("UNPAUSED", "continuous", "pause_status")
-		c.SetDefault("Untitled", "name")
-		c.SetDefault("default", "task", "dbt_task", "schema")
-		c.SetDefault(int64(1), "max_concurrent_runs")
-
 		c.SetComputed("run_as")
 		c.SetComputed("task", "retry_on_timeout")
 		c.SetComputed("format")
