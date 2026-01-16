@@ -139,8 +139,15 @@ func importInstancePool(ic *importContext, r *resource) error {
 }
 
 func importCluster(ic *importContext, r *resource) error {
+	resourceInfo := ic.Resources["databricks_cluster"]
+	if resourceInfo == nil {
+		// Fallback for Plugin Framework migrated resource - use direct data access
+		ic.emitPermissionsIfNotIgnored(r, fmt.Sprintf("/clusters/%s", r.ID),
+			"cluster_"+ic.Importables["databricks_cluster"].Name(ic, r.Data))
+		return ic.importClusterLibraries(r.Data)
+	}
 	var c sdk_compute.ClusterSpec
-	s := ic.Resources["databricks_cluster"].Schema
+	s := resourceInfo.Schema
 	common.DataToStructPointer(r.Data, s, &c)
 	ic.importCluster(&c)
 	ic.emitPermissionsIfNotIgnored(r, fmt.Sprintf("/clusters/%s", r.ID),

@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_cluster` resource and data source from SDKv2 to Plugin Framework ([#4](https://github.com/arthurkkp-cog/terraform-provider-databricks/pull/4))
