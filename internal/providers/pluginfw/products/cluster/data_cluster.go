@@ -34,13 +34,15 @@ type ClusterDataSource struct {
 }
 
 type ClusterInfo struct {
+	ID          types.String `tfsdk:"id"` // Adding ID field to stay compatible with SDKv2
 	ClusterId   types.String `tfsdk:"cluster_id"`
 	Name        types.String `tfsdk:"cluster_name"`
 	ClusterInfo types.List   `tfsdk:"cluster_info"`
-	tfschema.Namespace
+	tfschema.Namespace_SdkV2
 }
 
 func (ClusterInfo) ApplySchemaCustomizations(attrs map[string]tfschema.AttributeBuilder) map[string]tfschema.AttributeBuilder {
+	attrs["id"] = attrs["id"].SetOptional().SetComputed()
 	attrs["cluster_id"] = attrs["cluster_id"].SetOptional().SetComputed()
 	attrs["cluster_name"] = attrs["cluster_name"].SetOptional().SetComputed()
 	attrs["cluster_info"] = attrs["cluster_info"].SetOptional().SetComputed()
@@ -51,16 +53,19 @@ func (ClusterInfo) ApplySchemaCustomizations(attrs map[string]tfschema.Attribute
 func (ClusterInfo) GetComplexFieldTypes(context.Context) map[string]reflect.Type {
 	return map[string]reflect.Type{
 		"cluster_info":    reflect.TypeOf(compute_tf.ClusterDetails_SdkV2{}),
-		"provider_config": reflect.TypeOf(tfschema.ProviderConfigData{}),
+		"provider_config": reflect.TypeOf(tfschema.ProviderConfig{}),
 	}
 }
 
 func (d *ClusterDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = pluginfwcommon.GetDatabricksStagingName(dataSourceName)
+	resp.TypeName = pluginfwcommon.GetDatabricksProductionName(dataSourceName)
 }
 
 func (d *ClusterDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	attrs, blocks := tfschema.DataSourceStructToSchemaMap(ctx, ClusterInfo{}, nil)
+	attrs, blocks := tfschema.DataSourceStructToSchemaMap(ctx, ClusterInfo{}, func(c tfschema.CustomizableSchema) tfschema.CustomizableSchema {
+		c.ConfigureAsSdkV2Compatible()
+		return c
+	})
 	resp.Schema = schema.Schema{
 		Attributes: attrs,
 		Blocks:     blocks,
@@ -82,7 +87,7 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	workspaceID, diags := tfschema.GetWorkspaceIDDataSource(ctx, clusterInfo.ProviderConfig)
+	workspaceID, diags := tfschema.GetWorkspaceID_SdkV2(ctx, clusterInfo.ProviderConfig)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -108,6 +113,7 @@ func (d *ClusterDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
+	clusterInfo.ID = tfCluster.ClusterId
 	clusterInfo.ClusterId = tfCluster.ClusterId
 	clusterInfo.Name = tfCluster.ClusterName
 	clusterInfo.ClusterInfo = types.ListValueMust(tfCluster.Type(ctx), []attr.Value{tfCluster.ToObjectValue(ctx)})
