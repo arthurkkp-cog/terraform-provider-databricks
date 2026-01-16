@@ -1,3 +1,4 @@
+# Adapted for fork usage - uses standard GitHub-hosted runners
 name: "CodeQL"
 
 on:
@@ -12,10 +13,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false

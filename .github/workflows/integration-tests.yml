@@ -1,83 +1,84 @@
 name: Integration Tests
 
-on:
+# This workflow is adapted for fork usage. It runs integration tests directly
+# instead of triggering tests in a separate Databricks-internal repository.
+# To use this workflow, you need to set up the following secrets:
+# - DATABRICKS_HOST: Your Databricks workspace URL
+# - DATABRICKS_TOKEN: Your Databricks personal access token
+# Integration tests are skipped if these secrets are not configured.
 
+on:
   pull_request:
     types: [opened, synchronize]
 
   merge_group:
-
+    types: [checks_requested]
 
 jobs:
-  check-token:
+  check-secrets:
     name: Check secrets access
+    runs-on: ubuntu-latest
 
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
-
-    environment: "test-trigger-is"
     outputs:
-      has_token: ${{ steps.set-token-status.outputs.has_token }}
+      has_secrets: ${{ steps.set-secrets-status.outputs.has_secrets }}
+
     steps:
-      - name: Check if required secrets are set
-        id: set-token-status
+      - name: Check if Databricks secrets are set
+        id: set-secrets-status
         run: |
-            if [ -z "${{ secrets.DECO_WORKFLOW_TRIGGER_APP_ID }}" ] || [ -z "${{ secrets.DECO_TEST_APPROVAL_APP_ID }}" ]; then
-              echo "Required secrets are missing. User has no access to secrets."
-              echo "::set-output name=has_token::false"
-            else
-              echo "All required secrets are set. User has access to secrets."
-              echo "::set-output name=has_token::true"
-            fi
+          if [ -z "${{ secrets.DATABRICKS_HOST }}" ] || [ -z "${{ secrets.DATABRICKS_TOKEN }}" ]; then
+            echo "Databricks secrets are not configured. Integration tests will be skipped."
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+          else
+            echo "Databricks secrets are configured."
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          fi
 
-  trigger-tests:
-    name: Trigger Tests
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
 
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
-
-    needs: check-token
-    if: github.event_name == 'pull_request'  && needs.check-token.outputs.has_token == 'true'
-    environment: "test-trigger-is"
+    needs: check-secrets
+    if: github.event_name == 'pull_request' && needs.check-secrets.outputs.has_secrets == 'true'
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Generate GitHub App Token for Workflow Trigger
-      id: generate-token
-      uses: actions/create-github-app-token@v1
-      with:
-        app-id: ${{ secrets.DECO_WORKFLOW_TRIGGER_APP_ID }}
-        private-key: ${{ secrets.DECO_WORKFLOW_TRIGGER_PRIVATE_KEY }}
-        owner: ${{ secrets.ORG_NAME }}
-        repositories: ${{secrets.REPO_NAME}}
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
 
-    - name: Trigger Workflow in Another Repo
-      env:
-        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-      run: |
-        gh workflow run terraform-isolated-pr.yml -R ${{ secrets.ORG_NAME }}/${{secrets.REPO_NAME}} \
-        --ref main \
-        -f pull_request_number=${{ github.event.pull_request.number }} \
-        -f commit_sha=${{ github.event.pull_request.head.sha }}
+      - name: Pull external libraries
+        run: make vendor
 
+      - name: Run integration tests
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          # Run a subset of integration tests (adjust as needed)
+          # Full integration tests require extensive Databricks resources
+          go test -v -timeout 30m ./internal/acceptance/...
 
+  skip-integration-tests:
+    name: Integration Tests (Skipped)
+    runs-on: ubuntu-latest
 
-  # Statuses and checks apply to specific commits (by hash).
-  # Enforcement of required checks is done both at the PR level and the merge queue level.
-  # In case of multiple commits in a single PR, the hash of the squashed commit
-  # will not match the one for the latest (approved) commit in the PR.
-  # We auto approve the check for the merge queue for two reasons:
-  # * Queue times out due to duration of tests.
-  # * Avoid running integration tests twice, since it was already run at the tip of the branch before squashing.
+    needs: check-secrets
+    if: github.event_name == 'pull_request' && needs.check-secrets.outputs.has_secrets == 'false'
+
+    steps:
+      - name: Skip notice
+        run: |
+          echo "Integration tests skipped: DATABRICKS_HOST and DATABRICKS_TOKEN secrets are not configured."
+          echo "To enable integration tests, add these secrets to your repository settings."
+
+  # Auto-approve for merge queue to avoid running integration tests twice
   auto-approve:
     if: github.event_name == 'merge_group'
-
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
+    runs-on: ubuntu-latest
 
     permissions:
       checks: write
