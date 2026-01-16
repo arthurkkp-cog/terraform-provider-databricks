@@ -1,4 +1,4 @@
-# Generated file. DO NOT EDIT.
+# Adapted for fork usage - uses standard GitHub-hosted runners
 name: Check for NEXT_CHANGELOG.md Changes
 
 on:
@@ -7,9 +7,7 @@ on:
 
 jobs:
   check-next-changelog:
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code

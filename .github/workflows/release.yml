@@ -1,5 +1,11 @@
 name: goreleaser
 
+# This workflow is adapted for fork usage.
+# To enable signed releases, set up the following secrets:
+# - GPG_PRIVATE_KEY: Your GPG private key for signing releases
+# - PASSPHRASE: The passphrase for your GPG key
+# Without these secrets, releases will still work but won't be GPG-signed.
+
 on:
   push:
     tags:
@@ -9,9 +15,7 @@ on:
 
 jobs:
   goreleaser:
-    runs-on:
-      group: databricks-deco-testing-runner-group
-      labels: ubuntu-latest-deco
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
