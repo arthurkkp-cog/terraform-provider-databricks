@@ -2,9 +2,9 @@ package cluster
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/databricks/databricks-sdk-go"
@@ -512,7 +512,7 @@ func (r *ClusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	if errors.Is(err, errors.New("unpin the cluster first")) {
+	if strings.Contains(err.Error(), "unpin the cluster first") {
 		err = w.Clusters.UnpinByClusterId(ctx, clusterId)
 		if err != nil {
 			resp.Diagnostics.AddError("failed to unpin cluster before deletion", err.Error())
