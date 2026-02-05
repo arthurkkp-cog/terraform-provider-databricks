@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+ * Migrated `databricks_tables` data source to plugin framework ([#PR](link)).
