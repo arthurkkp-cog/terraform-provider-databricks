@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_sql_warehouse` data source to plugin framework ([#PR](link)).
