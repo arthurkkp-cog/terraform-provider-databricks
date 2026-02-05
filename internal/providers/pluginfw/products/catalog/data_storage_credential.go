@@ -47,7 +47,7 @@ func (StorageCredentialData) ApplySchemaCustomizations(attrs map[string]tfschema
 func (StorageCredentialData) GetComplexFieldTypes(context.Context) map[string]reflect.Type {
 	return map[string]reflect.Type{
 		"storage_credential_info": reflect.TypeOf(catalog_tf.StorageCredentialInfo_SdkV2{}),
-		"provider_config":         reflect.TypeOf(tfschema.ProviderConfigData_SdkV2{}),
+		"provider_config":         reflect.TypeOf(tfschema.ProviderConfig{}),
 	}
 }
 
@@ -81,7 +81,7 @@ func (d *StorageCredentialDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	workspaceID, diags := tfschema.GetWorkspaceIDDataSource_SdkV2(ctx, data.ProviderConfig)
+	workspaceID, diags := tfschema.GetWorkspaceID_SdkV2(ctx, data.ProviderConfig)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
