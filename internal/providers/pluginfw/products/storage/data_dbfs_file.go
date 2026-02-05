@@ -10,7 +10,6 @@ import (
 	pluginfwcommon "github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/common"
 	pluginfwcontext "github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/context"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/tfschema"
-	"github.com/databricks/terraform-provider-databricks/storage"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -90,11 +89,10 @@ func (d *DbfsFileDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	dbfsAPI := storage.NewDbfsAPI(ctx, w.DatabricksClient)
 	path := data.Path.ValueString()
 	limitFileSize := data.LimitFileSize.ValueBool()
 
-	fileInfo, err := dbfsAPI.Status(path)
+	fileInfo, err := w.Dbfs.GetStatusByPath(ctx, path)
 	if err != nil {
 		resp.Diagnostics.AddError(fmt.Sprintf("failed to get status of %s", path), err.Error())
 		return
@@ -108,7 +106,7 @@ func (d *DbfsFileDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	content, err := dbfsAPI.Read(fileInfo.Path)
+	content, err := w.Dbfs.ReadFile(ctx, fileInfo.Path)
 	if err != nil {
 		resp.Diagnostics.AddError(fmt.Sprintf("failed to read %s", fileInfo.Path), err.Error())
 		return
