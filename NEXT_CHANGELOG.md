@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_registered_model` resource from SDKv2 to Plugin Framework ([#6](https://github.com/arthurkkp-cog/terraform-provider-databricks/pull/6))
