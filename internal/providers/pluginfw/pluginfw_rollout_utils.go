@@ -14,6 +14,7 @@ import (
 
 	"github.com/databricks/databricks-sdk-go/config"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/app"
+	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/aws"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/catalog"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/cluster"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/dashboards"
@@ -40,6 +41,7 @@ var migratedResources = []func() resource.Resource{
 // List of data sources that have been migrated from SDK V2 to plugin framework
 // Keep this list sorted.
 var migratedDataSources = []func() datasource.DataSource{
+	aws.DataSourceInstanceProfiles,
 	sharing.DataSourceShare,
 	sharing.DataSourceShares,
 	volume.DataSourceVolumes,
