@@ -42,6 +42,7 @@ var migratedResources = []func() resource.Resource{
 var migratedDataSources = []func() datasource.DataSource{
 	sharing.DataSourceShare,
 	sharing.DataSourceShares,
+	volume.DataSourceVolume,
 	volume.DataSourceVolumes,
 }
 
