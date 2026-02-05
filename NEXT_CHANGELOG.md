@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_views` data source from SDKv2 to Plugin Framework ([#7](https://github.com/arthurkkp-cog/terraform-provider-databricks/pull/7))
