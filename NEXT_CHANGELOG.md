@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_dbfs_file_paths` data source to plugin framework ([#PR](link)).
