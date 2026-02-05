@@ -40,6 +40,7 @@ var migratedResources = []func() resource.Resource{
 // List of data sources that have been migrated from SDK V2 to plugin framework
 // Keep this list sorted.
 var migratedDataSources = []func() datasource.DataSource{
+	catalog.DataSourceCurrentMetastore,
 	sharing.DataSourceShare,
 	sharing.DataSourceShares,
 	volume.DataSourceVolumes,
