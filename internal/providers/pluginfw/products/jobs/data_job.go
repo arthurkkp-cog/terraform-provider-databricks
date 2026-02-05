@@ -112,7 +112,7 @@ func (d *JobDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 
 	var job *jobs.Job
-	var err error
+	var jobIdInt int64
 
 	if name != "" {
 		jobsList, err := w.Jobs.ListAll(ctx, jobs.ListJobsRequest{
@@ -124,43 +124,46 @@ func (d *JobDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 			return
 		}
 
+		var foundJobId int64
 		for _, j := range jobsList {
-			currentJob := j
-			currentJobId := fmt.Sprintf("%d", currentJob.JobId)
+			currentJobId := fmt.Sprintf("%d", j.JobId)
 			currentJobName := ""
-			if currentJob.Settings != nil {
-				currentJobName = currentJob.Settings.Name
+			if j.Settings != nil {
+				currentJobName = j.Settings.Name
 			}
 			if currentJobName == name || currentJobId == id {
-				job = &currentJob
+				foundJobId = j.JobId
 				name = currentJobName
-				id = currentJobId
-				jobId = currentJobId
 				break
 			}
 		}
 
-		if job == nil {
+		if foundJobId == 0 {
 			resp.Diagnostics.AddError("no job found with specified name", "")
 			return
 		}
+		jobIdInt = foundJobId
 	} else {
-		jobIdInt, err := strconv.ParseInt(id, 10, 64)
+		var err error
+		jobIdInt, err = strconv.ParseInt(id, 10, 64)
 		if err != nil {
 			resp.Diagnostics.AddError("invalid job_id", err.Error())
 			return
 		}
-		job, err = w.Jobs.Get(ctx, jobs.GetJobRequest{
-			JobId: jobIdInt,
-		})
-		if err != nil {
-			resp.Diagnostics.AddError("failed to get job", err.Error())
-			return
-		}
-		if job.Settings != nil {
-			name = job.Settings.Name
-		}
 	}
+
+	var err error
+	job, err = w.Jobs.Get(ctx, jobs.GetJobRequest{
+		JobId: jobIdInt,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("failed to get job", err.Error())
+		return
+	}
+	if job.Settings != nil {
+		name = job.Settings.Name
+	}
+	id = fmt.Sprintf("%d", job.JobId)
 
 	if job.Settings != nil && job.RunAsUserName != "" {
 		if common.StringIsUUID(job.RunAsUserName) {
