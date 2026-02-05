@@ -23,6 +23,7 @@ import (
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/registered_model"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/serving"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/sharing"
+	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/storage"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/user"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/products/volume"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -42,6 +43,7 @@ var migratedResources = []func() resource.Resource{
 var migratedDataSources = []func() datasource.DataSource{
 	sharing.DataSourceShare,
 	sharing.DataSourceShares,
+	storage.DataSourceDbfsFilePaths,
 	volume.DataSourceVolumes,
 }
 
