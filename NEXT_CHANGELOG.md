@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_instance_profiles` data source to plugin framework ([#PR](link)).
