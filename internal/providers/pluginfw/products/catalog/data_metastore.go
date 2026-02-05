@@ -13,6 +13,7 @@ import (
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/converters"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/tfschema"
 	"github.com/databricks/terraform-provider-databricks/internal/service/catalog_tf"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -151,7 +152,7 @@ func (d *MetastoreDataSource) Read(ctx context.Context, req datasource.ReadReque
 	data.MetastoreId = types.StringValue(metastoreInfo.MetastoreId)
 	data.Name = types.StringValue(metastoreInfo.Name)
 	data.Region = types.StringValue(metastoreInfo.Region)
-	data.Metastore = types.ListValueMust(catalog_tf.MetastoreInfo_SdkV2{}.Type(ctx), []any{metastoreInfoTf.ToObjectValue(ctx)})
+	data.Metastore = types.ListValueMust(catalog_tf.MetastoreInfo_SdkV2{}.Type(ctx), []attr.Value{metastoreInfoTf.ToObjectValue(ctx)})
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
