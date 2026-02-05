@@ -5,11 +5,11 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/databricks/databricks-sdk-go"
 	"github.com/databricks/terraform-provider-databricks/common"
 	pluginfwcommon "github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/common"
 	pluginfwcontext "github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/context"
 	"github.com/databricks/terraform-provider-databricks/internal/providers/pluginfw/tfschema"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -125,7 +125,7 @@ func (d *InstanceProfilesDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	profilesList, listDiags := types.ListValueFrom(ctx, types.ObjectType{
-		AttrTypes: map[string]types.Type{
+		AttrTypes: map[string]attr.Type{
 			"name":     types.StringType,
 			"arn":      types.StringType,
 			"role_arn": types.StringType,
