@@ -47,7 +47,7 @@ func (VolumeData_SdkV2) ApplySchemaCustomizations(attrs map[string]tfschema.Attr
 func (VolumeData_SdkV2) GetComplexFieldTypes(ctx context.Context) map[string]reflect.Type {
 	return map[string]reflect.Type{
 		"volume_info":     reflect.TypeOf(catalog_tf.VolumeInfo_SdkV2{}),
-		"provider_config": reflect.TypeOf(tfschema.ProviderConfigData_SdkV2{}),
+		"provider_config": reflect.TypeOf(tfschema.ProviderConfig{}),
 	}
 }
 
@@ -81,7 +81,7 @@ func (d *VolumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	workspaceID, diags := tfschema.GetWorkspaceIDDataSource_SdkV2(ctx, data.ProviderConfig)
+	workspaceID, diags := tfschema.GetWorkspaceID_SdkV2(ctx, data.ProviderConfig)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
