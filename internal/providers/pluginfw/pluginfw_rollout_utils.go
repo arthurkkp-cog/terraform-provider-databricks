@@ -34,6 +34,7 @@ import (
 var migratedResources = []func() resource.Resource{
 	library.ResourceLibrary,
 	qualitymonitor.ResourceQualityMonitor,
+	registered_model.ResourceRegisteredModel,
 	sharing.ResourceShare,
 }
 
