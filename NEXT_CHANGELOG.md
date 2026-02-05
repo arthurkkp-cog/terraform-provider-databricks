@@ -13,3 +13,5 @@
 ### Exporter
 
 ### Internal Changes
+
+* Migrated `databricks_catalog` data source to plugin framework ([#PR](link)).
