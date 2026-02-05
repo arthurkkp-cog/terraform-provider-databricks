@@ -57,7 +57,7 @@ func (d *ExternalLocationDataSource) Metadata(ctx context.Context, req datasourc
 
 func (d *ExternalLocationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	attrs, blocks := tfschema.DataSourceStructToSchemaMap(ctx, ExternalLocationData{}, func(cs tfschema.CustomizableSchema) tfschema.CustomizableSchema {
-		cs.SchemaPath("external_location_info").ConfigureAsSdkV2Compatible()
+		cs.ConfigureAsSdkV2Compatible()
 		return cs
 	})
 	resp.Schema = schema.Schema{
